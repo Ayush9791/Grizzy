@@ -25,8 +25,8 @@ class Music(commands.Cog):
             await ctx.send("I'm not in a voice channel!")
 
     @commands.command()
-    async def play(self, ctx, url):
-        """Play music from a YouTube URL using yt-dlp and FFmpeg"""
+    async def play(self, ctx, *, query):
+        """Play music from a YouTube URL or search term using yt-dlp and FFmpeg"""
         voice_client = ctx.voice_client
         if not voice_client:
             if ctx.author.voice:
@@ -39,24 +39,38 @@ class Music(commands.Cog):
         # yt-dlp options
         ydl_opts = {
             'format': 'bestaudio/best',
-            'quiet': True,
-            'no_warnings': True,
+            'noplaylist': True,
+            'extractaudio': True,
+            'keepvideo': False,
+            'quiet': True
         }
 
-        # Extract audio URL using yt-dlp
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            audio_url = info['formats'][0]['url']
+        try:
+            # Check if the input is a URL or a search query
+            if not query.startswith("http"):
+                # If it's not a URL, perform a YouTube search using yt-dlp
+                search_query = f"ytsearch:{query}"
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(search_query, download=False)['entries'][0]
+            else:
+                # If it's a URL, extract info directly
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(query, download=False)
 
-        # FFmpeg options
-        ffmpeg_opts = {
-            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-            'options': '-vn'
-        }
+            audio_url = info['url']
+            print(audio_url)
 
-        # Play audio using FFmpeg
-        voice_client.play(FFmpegPCMAudio(audio_url, **ffmpeg_opts), after=lambda e: print(f'Error: {e}') if e else None)
-        await ctx.send(f'Now playing: {info["title"]}')
+            ffmpeg_opts = {
+                'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                'options': '-vn'
+            }
+
+            voice_client.play(FFmpegPCMAudio(audio_url, **ffmpeg_opts), after=lambda e: print(f'Error: {e}') if e else None)
+            await ctx.send(f'Now playing: {info["title"]}')
+        
+        except Exception as e:
+            await ctx.send(f"An error occurred while trying to play the song: {e}")
+            print(f"Error in play command: {e}")
 
     @commands.command()
     async def pause(self, ctx):
@@ -89,5 +103,5 @@ class Music(commands.Cog):
             await ctx.send("No music is playing.")
 
 
-def setup(bot):
-    bot.add_cog(Music(bot))
+async def setup(bot):
+    await bot.add_cog(Music(bot))

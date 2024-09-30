@@ -140,6 +140,134 @@ class Blackjack(commands.Cog):
         else:
             await ctx.send("It's a tie!")
 
-def setup(bot):
-    bot.add_cog(NumberGuess(bot))
-    bot.add_cog(Blackjack(bot))
+class RockPaperScissors(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        self.active_games = {}
+
+    @commands.command(name="rps")
+    async def rock_paper_scissors(self, ctx, opponent: str = None):
+        """
+        Play a game of Rock, Paper, Scissors.
+        You can choose to play against the bot or another server member.
+        Usage: !rps @opponent OR !rps bot
+        """
+        # If no opponent is given, assume it's against the bot
+        if opponent is None:
+            await ctx.send("Please specify whether you want to play against `bot` or challenge another `@member`.")
+            return
+
+        # Play against the bot
+        if opponent.lower() == "bot":
+            await self.play_against_bot(ctx)
+        else:
+            # Try to find a member in the server
+            member = await commands.MemberConverter().convert(ctx, opponent)
+            if member:
+                await self.play_against_member(ctx, member)
+            else:
+                await ctx.send("You need to specify either 'bot' or mention a server member to play against.")
+
+    async def play_against_bot(self, ctx):
+        """Logic for playing Rock, Paper, Scissors against the bot."""
+        await ctx.send("You are playing Rock, Paper, Scissors against the bot! Please type `rock`, `paper`, or `scissors`.")
+
+        def check(msg):
+            return msg.author == ctx.author and msg.content.lower() in ['rock', 'paper', 'scissors'] and msg.channel == ctx.channel
+
+        try:
+            # Wait for the player's response
+            player_response = await self.bot.wait_for('message', check=check, timeout=60.0)
+        except TimeoutError:
+            await ctx.send("You took too long to respond!")
+            return
+
+        player_choice = player_response.content.lower()
+        bot_choice = random.choice(['rock', 'paper', 'scissors'])
+
+        result = self.determine_winner(player_choice, bot_choice)
+
+        # Announce the result
+        if result == "win":
+            await ctx.send(f"You chose **{player_choice}**, I chose **{bot_choice}**. You win! 🎉")
+        elif result == "lose":
+            await ctx.send(f"You chose **{player_choice}**, I chose **{bot_choice}**. I win! 😎")
+        else:
+            await ctx.send(f"We both chose **{player_choice}**. It's a tie! 🤝")
+
+    async def play_against_member(self, ctx, opponent: discord.Member):
+        """Logic for playing Rock, Paper, Scissors against another member."""
+        if opponent == ctx.author:
+            await ctx.send("You can't challenge yourself!")
+            return
+
+        if opponent.bot:
+            await ctx.send("You can't challenge a bot!")
+            return
+
+        # Check if either player is in an active game
+        if ctx.author.id in self.active_games or opponent.id in self.active_games:
+            await ctx.send("One of the players is already in an active game.")
+            return
+
+        # Start the game and send DM instructions
+        self.active_games[ctx.author.id] = None
+        self.active_games[opponent.id] = None
+
+        await ctx.send(f"{opponent.mention}, you have been challenged to a game of Rock, Paper, Scissors! Check your DMs to play.")
+        await ctx.author.send("You have challenged someone to a game of Rock, Paper, Scissors! Reply with `rock`, `paper`, or `scissors` to play.")
+        await opponent.send(f"You have been challenged to a game of Rock, Paper, Scissors by {ctx.author.display_name}! Reply with `rock`, `paper`, or `scissors` to play.")
+
+        def check(msg):
+            return msg.author.id in self.active_games and msg.content.lower() in ["rock", "paper", "scissors"]
+
+        try:
+            player1_response = await self.bot.wait_for('message', check=check, timeout=60.0)
+            self.active_games[ctx.author.id] = player1_response.content.lower()
+
+            player2_response = await self.bot.wait_for('message', check=check, timeout=60.0)
+            self.active_games[opponent.id] = player2_response.content.lower()
+
+        except TimeoutError:
+            await ctx.send("The game timed out as one of the players didn't respond in time.")
+            self.active_games.pop(ctx.author.id, None)
+            self.active_games.pop(opponent.id, None)
+            return
+
+        player1_choice = self.active_games[ctx.author.id]
+        player2_choice = self.active_games[opponent.id]
+
+        result = self.determine_winner(player1_choice, player2_choice)
+
+        if result == "win":
+            message = f"{ctx.author.display_name} chose **{player1_choice}**, {opponent.display_name} chose **{player2_choice}**. {ctx.author.mention} wins! 🎉"
+        elif result == "lose":
+            message = f"{ctx.author.display_name} chose **{player1_choice}**, {opponent.display_name} chose **{player2_choice}**. {opponent.mention} wins! 🎉"
+        else:
+            message = f"Both players chose **{player1_choice}**. It's a tie! 🤝"
+
+        await ctx.send(message)
+
+        self.active_games.pop(ctx.author.id, None)
+        self.active_games.pop(opponent.id, None)
+
+    def determine_winner(self, player1_choice, player2_choice):
+        """Determine the winner of the game"""
+        if player1_choice == player2_choice:
+            return "tie"
+        elif (player1_choice == "rock" and player2_choice == "scissors") or \
+             (player1_choice == "scissors" and player2_choice == "paper") or \
+             (player1_choice == "paper" and player2_choice == "rock"):
+            return "win"
+        else:
+            return "lose"
+
+async def setup(bot):
+    await bot.add_cog(Blackjack(bot))
+    await bot.add_cog(NumberGuess(bot))
+    await bot.add_cog(RockPaperScissors(bot))
+
+
+
+
+    

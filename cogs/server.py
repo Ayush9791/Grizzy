@@ -18,5 +18,5 @@ class server(commands.Cog):
     async def mainserver(self, ctx):
         await ctx.send(f'Looks like you need our main server link , Here it is: https://discord.gg/a76qk6Pba5 ')
 
-def setup(bot):
-    bot.add_cog(server(bot))
+async def setup(bot):
+    await bot.add_cog(server(bot))
