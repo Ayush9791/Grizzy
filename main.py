@@ -3,6 +3,7 @@ from discord.ext import commands
 import asyncio
 import os
 from datetime import datetime
+import streamlit as st
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -42,8 +43,10 @@ async def load_cogs():
             except Exception as e:
                 print(f'Failed to load extension {filename[:-3]}: {e}')
 
+token = st.secrets["discord_token"]
+
 async def main():
     await load_cogs()
-    await bot.start('MTI3MTkwMDMyNDY0MjI5MTg4NA.GgGVfu.oNJ2XLHN5BrKDOqOmrc3UexzqcrMoCiANyHkSA')
+    await bot.start(token)
 
 asyncio.run(main())
