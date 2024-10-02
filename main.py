@@ -28,12 +28,6 @@ async def on_disconnect():
     logc = bot.get_channel(1284555765398372374)
     await logc.send("Bot getting updated")    
 
-@bot.event
-async def on_member_join(member):
-    welcomec = bot.get_channel(1284945847951298702)
-    welcome_message = (f'Welcome to the server, {member.mention}! We are glad to have you here.')
-    await welcomec.send(welcome_message)
-
 
 async def load_cogs():
     for filename in os.listdir("./cogs"):
@@ -41,12 +35,27 @@ async def load_cogs():
             try:
                 await bot.load_extension(f'cogs.{filename[:-3]}')
             except Exception as e:
-                print(f'Failed to load extension {filename[:-3]}: {e}')
+                print(f'Failed to load {filename[:-3]}: {e}')
 
-token = os.getenv('bot_token')
+
+async def load_files():
+    for filename in os.listdir("./music"):
+        if filename.endswith('.py'):
+            try:
+                await bot.load_extension(f'music.{filename[:-3]}')
+            except Exception as e:
+                print(f'Failed to load file {filename[:-3]}: {e}')
+
+"""token = st.secrets["discord_token"]
 
 async def main():
     await load_cogs()
-    await bot.start('token')
+    await bot.start(token)"""
+
+async def main():
+    await load_cogs()
+    await load_files()
+    await bot.start('MTI5MDk5NjczNDE2Nzg3OTc2MA.G8aI_Q.vLceVN2ie0qTULwsobV15uUW_wndqyv9qVkvS4')
+
 
 asyncio.run(main())
