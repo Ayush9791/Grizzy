@@ -43,6 +43,8 @@ async def load_cogs():
             except Exception as e:
                 print(f'Failed to load extension {filename[:-3]}: {e}')
 
+token = os.getenv('bot_token')
+
 async def main():
     await load_cogs()
     await bot.start('MTI3MTkwMDMyNDY0MjI5MTg4NA.GLenV-.q1ARaf46gbjECRsqjxXLERgau_d7lDy795gLJ0')
