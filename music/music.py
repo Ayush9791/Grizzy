@@ -9,7 +9,6 @@ class Music(commands.Cog):
 
     @commands.command()
     async def join(self, ctx):
-        """Make the bot join the voice channel"""
         if ctx.author.voice:
             channel = ctx.author.voice.channel
             await channel.connect()
