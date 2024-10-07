@@ -18,5 +18,12 @@ class server(commands.Cog):
     async def mainserver(self, ctx):
         await ctx.send(f'Looks like you need our main server link , Here it is: https://discord.gg/a76qk6Pba5 ')
 
+    @commands.command()
+    @commands.is_owner()  # Only the owner can use this command
+    async def shutdown(self, ctx):
+        """Shut down the bot."""
+        await ctx.send("Shutting down...")
+        await self.bot.close()
+
 async def setup(bot):
     await bot.add_cog(server(bot))
