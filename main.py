@@ -44,6 +44,14 @@ async def load_files():
             except Exception as e:
                 print(f'Failed to load file {filename[:-3]}: {e}')
 
+async def load_files():
+    for filename in os.listdir("./serversecurity"):
+        if filename.endswith('.py'):
+            try:
+                await bot.load_extension(f'serversecurity.{filename[:-3]}')
+            except Exception as e:
+                print(f'Failed to load file {filename[:-3]}: {e}')
+
 """token = st.secrets["discord_token"]
 
 async def main():

@@ -6,10 +6,9 @@ class CommandManager(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @commands.is_owner()  # Only the owner can use this command
+    @commands.is_owner()
     async def sync(self, ctx):
-        """Syncs global commands across all servers."""
-        await self.bot.tree.sync()  # Sync commands
+        await self.bot.tree.sync()
         await ctx.send("Commands synced globally.")
 
 async def setup(bot):

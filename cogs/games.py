@@ -67,7 +67,6 @@ class Blackjack(commands.Cog):
         self.deck = self.create_deck()
 
     def create_deck(self):
-        """Create a deck of cards."""
         suits = ['<:ACEOFHEART:1286014692090712126>','<:ACEOFDIAMOND:1286014634830069901>', '<:ACEOFCLUB:1286014660830826578>', '<:ACEOFSPADE:1286014676429439007>']
         ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace']
         deck = [(rank, suit) for rank in ranks for suit in suits]
@@ -75,7 +74,6 @@ class Blackjack(commands.Cog):
         return deck
 
     def calculate_hand_value(self, hand):
-        """Calculate the total value of a hand."""
         value = 0
         aces = 0
         for card, _ in hand:
@@ -146,13 +144,7 @@ class RockPaperScissors(commands.Cog):
         self.active_games = {}
 
     @commands.command(name="rps")
-    async def rock_paper_scissors(self, ctx, opponent: str = None):
-        """
-        Play a game of Rock, Paper, Scissors.
-        You can choose to play against the bot or another server member.
-        Usage: !rps @opponent OR !rps bot
-        """
-        # If no opponent is given, assume it's against the bot
+    async def rps(self, ctx, opponent: str = None):
         if opponent is None:
             await ctx.send("Please specify whether you want to play against `bot` or challenge another `@member`.")
             return
@@ -169,7 +161,6 @@ class RockPaperScissors(commands.Cog):
                 await ctx.send("You need to specify either 'bot' or mention a server member to play against.")
 
     async def play_against_bot(self, ctx):
-        """Logic for playing Rock, Paper, Scissors against the bot."""
         await ctx.send("You are playing Rock, Paper, Scissors against the bot! Please type `rock`, `paper`, or `scissors`.")
 
         def check(msg):
@@ -177,7 +168,8 @@ class RockPaperScissors(commands.Cog):
 
         try:
             # Wait for the player's response
-            player_response = await self.bot.wait_for('message', check=check, timeout=60.0)
+            player_response = await self.bot.wait_for('message', check=check, timeout
+                                                      =60.0)
         except TimeoutError:
             await ctx.send("You took too long to respond!")
             return
@@ -196,7 +188,6 @@ class RockPaperScissors(commands.Cog):
             await ctx.send(f"We both chose **{player_choice}**. It's a tie! 🤝")
 
     async def play_against_member(self, ctx, opponent: discord.Member):
-        """Logic for playing Rock, Paper, Scissors against another member."""
         if opponent == ctx.author:
             await ctx.send("You can't challenge yourself!")
             return
@@ -252,7 +243,6 @@ class RockPaperScissors(commands.Cog):
         self.active_games.pop(opponent.id, None)
 
     def determine_winner(self, player1_choice, player2_choice):
-        """Determine the winner of the game"""
         if player1_choice == player2_choice:
             return "tie"
         elif (player1_choice == "rock" and player2_choice == "scissors") or \

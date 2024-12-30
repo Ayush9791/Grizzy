@@ -1,22 +1,21 @@
 import discord
 from discord.ext import commands
 
-class BasicCmds(commands.Cog):  # Changed the class name to PascalCase
+class BasicCmds(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
-    async def speak(self, ctx, *, arg):  # Changed to `*` to capture multiple words
+    async def speak(self, ctx, *, arg):
         await ctx.send(arg)
 
     @commands.command()
-    async def gn(self, ctx, *, arg):  # Changed to `*` for multiple words
+    async def gn(self, ctx, *, arg):
         await ctx.send(f'Good night!! {arg}')
 
     @commands.command()
-    async def gm(self, ctx, *, arg):  # Changed to `*` for multiple words
+    async def gm(self, ctx, *, arg):
         await ctx.send(f'Good morning!! {arg}')
-
 
 async def setup(bot):
     await bot.add_cog(BasicCmds(bot))

@@ -8,8 +8,8 @@ features to be added:
 ~vc moderation
 
 2. music
-~join
-~play
+~join done
+~play done
 ~skip
 ~queue
 ~vol
@@ -18,8 +18,8 @@ features to be added:
 ~clear queue
 
 3. welcome
-~joinmsg
-~leave
+~joinmsg done
+~leave 
 ~verification
 
 4. currency
@@ -45,5 +45,6 @@ features to be added:
 ~xp
 
 4. games
-~blackjack
-~guess number
+~blackjack done
+~guess number done
+~rps done
