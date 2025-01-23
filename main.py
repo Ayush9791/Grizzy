@@ -61,7 +61,7 @@ async def main():
 async def main():
     await load_cogs()
     await load_files()
-    await bot.start('MTI5MDk5NjczNDE2Nzg3OTc2MA.G8aI_Q.vLceVN2ie0qTULwsobV15uUW_wndqyv9qVkvS4')
+    await bot.start('')
 
 
 asyncio.run(main())
