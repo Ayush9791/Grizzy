@@ -10,8 +10,8 @@ import os
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.queue = []  # Initialize a queue for the songs
-        self.volume = 1.0  # Default volume (1.0 = 100%)
+        self.queue = []
+        self.volume = 1.0  
 
         # Spotify API setup
         SPOTIFY_CLIENT_ID = 'your_spotify_client_id'
@@ -35,7 +35,7 @@ class Music(commands.Cog):
     async def leave(self, ctx):
         if ctx.voice_client:
             await ctx.voice_client.disconnect()
-            self.queue.clear()  # Clear the queue when leaving
+            self.queue.clear()
         else:
             await ctx.send("Me toh hue 9😛")
 
@@ -83,7 +83,7 @@ class Music(commands.Cog):
 
         ffmpeg_opts = {
             'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-            'options': f'-vn -filter:a "volume={self.volume}"'  # Adjust volume
+            'options': f'-vn -filter:a "volume={self.volume}"'
         }
 
         voice_client.play(FFmpegPCMAudio(url, **ffmpeg_opts), after=lambda e: self.after_play(ctx, e))
@@ -91,9 +91,9 @@ class Music(commands.Cog):
     def after_play(self, ctx, error):
         if error:
             print(f"Error: {error}")
-        if self.queue:  # Check if there are more songs in the queue
+        if self.queue:
             next_song = self.queue.pop(0)
-            self.bot.loop.create_task(self.play_song(ctx, next_song[0]))  # Play the next song in queue
+            self.bot.loop.create_task(self.play_song(ctx, next_song[0]))
 
     @commands.command()
     async def play(self, ctx, *, query):
@@ -114,17 +114,16 @@ class Music(commands.Cog):
                     youtube_url, title = self.search_youtube(track_info)
 
                     if youtube_url:
-                        if not voice_client.is_playing() and len(self.queue) == 0:  # Ensure it's only playing if queue is empty
-                            await self.play_song(ctx, youtube_url)  # Play the song immediately
+                        if not voice_client.is_playing() and len(self.queue) == 0:
+                            await self.play_song(ctx, youtube_url)
                         else:
-                            self.queue.append((youtube_url, title))  # Add to queue
+                            self.queue.append((youtube_url, title))
                             await ctx.send(f"Added to queue: {title}")
                     else:
                         await ctx.send("Could not find the song on YouTube.")
                 else:
                     await ctx.send("Invalid Spotify link!")
             else:
-                # Handle YouTube search or URL
                 await self.play_youtube(ctx, query)
 
         except Exception as e:
@@ -145,7 +144,6 @@ class Music(commands.Cog):
         }
 
         try:
-            # Check if the input is a URL or a search query
             if not query.startswith("http"):
                 search_query = f"ytsearch:{query}"
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -158,10 +156,10 @@ class Music(commands.Cog):
             title = info['title']
             await ctx.send(f"Now playing: {title}")
 
-            if not ctx.voice_client.is_playing():  # Play if not already playing
-                await self.play_song(ctx, audio_url)  # Play the song immediately
+            if not ctx.voice_client.is_playing(): 
+                await self.play_song(ctx, audio_url)
             else:
-                self.queue.append((audio_url, title))  # Add to queue if already playing
+                self.queue.append((audio_url, title)) 
                 await ctx.send(f"Dal dia queue me 😏: {title}")
 
         except Exception as e:
@@ -172,13 +170,12 @@ class Music(commands.Cog):
     async def setvolume(self, ctx, volume: int):
         """Set the volume of the player"""
         if 0 <= volume <= 100:
-            self.volume = volume / 100  # Scale volume to 0.0 - 1.0
+            self.volume = volume / 100
             await ctx.send(f"Volume set to {volume}%")
-            # Adjust currently playing song's volume if applicable
             if ctx.voice_client.is_playing():
-                ctx.voice_client.stop()  # Stop current playing to apply new volume
+                ctx.voice_client.stop()
                 current_url = ctx.voice_client.source.url
-                await self.play_song(ctx, current_url)  # Play with new volume
+                await self.play_song(ctx, current_url)
         else:
             await ctx.send("Volume should be between 0 and 100.")
 
@@ -203,9 +200,7 @@ class Music(commands.Cog):
                 title = info['title']
 
                 filename = f"{title}.mp3"
-
-                # Check Discord's file size limit before sending
-                if os.path.getsize(filename) < 8 * 1024 * 1024:  # 8MB limit for free accounts
+                if os.path.getsize(filename) < 8 * 1024 * 1024:
                     await ctx.send(f"Downloaded: {filename}")
                     await ctx.send(file=discord.File(filename))
                 else:
